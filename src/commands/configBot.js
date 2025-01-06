@@ -10,11 +10,21 @@ const rl = readline.createInterface({
 
 async function configBot(projectPath) {
   console.log(projectPath);
+
   const templateDir = path.join(projectPath, 'template');
   const botConfigPath = path.join(templateDir, 'bot.json');
 
   if (!fs.existsSync(templateDir)) {
     console.error(`Thư mục template không tồn tại trong đường dẫn: ${templateDir}`);
+    rl.close();
+    return;
+  }
+
+  try {
+    fs.accessSync(templateDir, fs.constants.R_OK | fs.constants.W_OK);
+    console.log('Có quyền đọc/ghi thư mục template.');
+  } catch (err) {
+    console.error('Không có quyền đọc/ghi thư mục template.');
     rl.close();
     return;
   }

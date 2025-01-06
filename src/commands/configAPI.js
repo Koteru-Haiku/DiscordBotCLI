@@ -6,9 +6,26 @@ async function configAPI(projectPath) {
   const configFilePath = path.join(projectPath, 'config.py');
 
   let existingConfig = {};
-  if (fs.existsSync(configFilePath)) {
+
+  if (!fs.existsSync(configFilePath)) {
+    console.log('File config.py không tồn tại. Tạo file mới...');
+    const defaultConfig = {
+      openweather: '',
+      giphy: '',
+      orc_space: ''
+    };
+    writeAPIConfig(configFilePath, defaultConfig);
+  } else {
     const content = fs.readFileSync(configFilePath, 'utf8');
     existingConfig = parseConfigFile(content);
+  }
+
+  try {
+    fs.accessSync(configFilePath, fs.constants.R_OK | fs.constants.W_OK);
+    console.log('Có quyền đọc/ghi file config.py.');
+  } catch (err) {
+    console.error('Không có quyền đọc/ghi file config.py.');
+    return;
   }
 
   const questions = [
@@ -22,7 +39,7 @@ async function configAPI(projectPath) {
       type: 'input',
       name: 'giphy',
       message: 'Nhập API key cho Giphy:',
-      default: existingConfig.giphy || '', 
+      default: existingConfig.giphy || '',
     },
     {
       type: 'input',
